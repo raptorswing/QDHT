@@ -7,17 +7,17 @@
 #include <cctype>
 
 //public static
-BencodeNode *Bencode::parse(QByteArray bytes)
+QSharedPointer<BencodeNode>Bencode::parse(QByteArray bytes)
 {
     return _parse(bytes);
 }
 
 //private static
-BencodeNode *Bencode::_parse(QByteArray& bytes)
+QSharedPointer<BencodeNode>Bencode::_parse(QByteArray& bytes)
 {
     char next = bytes.at(0);
 
-    BencodeNode * toRet = 0;
+    QSharedPointer<BencodeNode> toRet;
 
     if (next == 'i')
     {
@@ -38,15 +38,16 @@ BencodeNode *Bencode::_parse(QByteArray& bytes)
     else
     {
         qWarning() << "Bad bencoding! Unknown type" << next;
-        return 0;
     }
 
-    return 0;
+    return toRet;
 }
 
 //private static
-IntegerBencodeNode * Bencode::parseInt(QByteArray &bytes)
+QSharedPointer<IntegerBencodeNode> Bencode::parseInt(QByteArray &bytes)
 {
+    QSharedPointer<IntegerBencodeNode> toRet;
+
     int endIndex = bytes.indexOf('e');
     bool ok;
     qint64 result;
@@ -61,18 +62,21 @@ IntegerBencodeNode * Bencode::parseInt(QByteArray &bytes)
 
         qDebug() << "Parsed int" << result;
 
-        return new IntegerBencodeNode(result);
+        toRet = QSharedPointer<IntegerBencodeNode>(new IntegerBencodeNode(result));
     }
     else
     {
         qWarning() << "Failed to parse int" << bytes;
-        return 0;
     }
+
+    return toRet;
 }
 
 //private static
-ByteStringBencodeNode * Bencode::parseByteString(QByteArray &bytes)
+QSharedPointer<ByteStringBencodeNode> Bencode::parseByteString(QByteArray &bytes)
 {
+    QSharedPointer<ByteStringBencodeNode> toRet;
+
     int endLengthIndex = bytes.indexOf(':');
     bool ok;
     qint64 lengthResult;
@@ -89,18 +93,21 @@ ByteStringBencodeNode * Bencode::parseByteString(QByteArray &bytes)
 
         qDebug() << "Parsed bytestring" << string;
 
-        return new ByteStringBencodeNode(string);
+        toRet = QSharedPointer<ByteStringBencodeNode>(new ByteStringBencodeNode(string));
     }
     else
     {
         qWarning() << "Failed to parse bytestring" << bytes;
-        return 0;
     }
+
+    return toRet;
 }
 
 //private static
-ListBencodeNode *Bencode::parseList(QByteArray &bytes)
+QSharedPointer<ListBencodeNode> Bencode::parseList(QByteArray &bytes)
 {
+    QSharedPointer<ListBencodeNode> toRet;
+
     if (!bytes.isEmpty()
             && bytes.at(0) == 'l')
     {
@@ -109,12 +116,12 @@ ListBencodeNode *Bencode::parseList(QByteArray &bytes)
 
         qDebug() << "Begin list";
 
-        QList<BencodeNode *> listEntries;
+        QList<QSharedPointer<BencodeNode> > listEntries;
 
         //Retrieve list elements
         while (!bytes.isEmpty() && bytes.at(0) != 'e')
         {
-            BencodeNode * node = Bencode::_parse(bytes);
+            QSharedPointer<BencodeNode> node = Bencode::_parse(bytes);
             listEntries.append(node);
         }
 
@@ -123,18 +130,21 @@ ListBencodeNode *Bencode::parseList(QByteArray &bytes)
 
         qDebug() << "End list";
 
-        return new ListBencodeNode(listEntries);
+        toRet = QSharedPointer<ListBencodeNode>(new ListBencodeNode(listEntries));
     }
     else
     {
         qWarning() << "Failed to parse list" << bytes;
-        return 0;
     }
+
+    return toRet;
 }
 
 //private static
-DictBencodeNode *Bencode::parseDict(QByteArray &bytes)
+QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
 {
+    QSharedPointer<DictBencodeNode> toRet;
+
     if (!bytes.isEmpty()
             && bytes.at(0) == 'd')
     {
@@ -143,18 +153,17 @@ DictBencodeNode *Bencode::parseDict(QByteArray &bytes)
 
         qDebug() << "Begin dict";
 
-        QMap<QString, BencodeNode *> dictEntries;
+        QMap<QString, QSharedPointer<BencodeNode> > dictEntries;
 
         //Retrieve dict elements
         while (!bytes.isEmpty() && isdigit(bytes.at(0)))
         {
             //Get the key
-            ByteStringBencodeNode * keyNameNode = Bencode::parseByteString(bytes);
+            QSharedPointer<ByteStringBencodeNode> keyNameNode = Bencode::parseByteString(bytes);
             const QByteArray key = keyNameNode->byteString();
-            delete keyNameNode;
 
             //Get the value
-            BencodeNode * valueNode = Bencode::_parse(bytes);
+            QSharedPointer<BencodeNode> valueNode = Bencode::_parse(bytes);
             dictEntries.insert(key, valueNode);
         }
 
@@ -163,11 +172,12 @@ DictBencodeNode *Bencode::parseDict(QByteArray &bytes)
 
         qDebug() << "End dict";
 
-        return new DictBencodeNode(dictEntries);
+        toRet = QSharedPointer<DictBencodeNode>(new DictBencodeNode(dictEntries));
     }
     else
     {
         qWarning() << "Failed to parse dict" << bytes;
-        return 0;
     }
+
+    return toRet;
 }

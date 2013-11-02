@@ -12,10 +12,10 @@ public:
     BencodeNodeVisitor();
     virtual ~BencodeNodeVisitor();
 
-    virtual void visit(IntegerBencodeNode * node);
-    virtual void visit(ByteStringBencodeNode * node);
-    virtual void visit(ListBencodeNode * node);
-    virtual void visit(DictBencodeNode * node);
+    virtual void visit(QSharedPointer<IntegerBencodeNode> node);
+    virtual void visit(QSharedPointer<ByteStringBencodeNode> node);
+    virtual void visit(QSharedPointer<ListBencodeNode> node);
+    virtual void visit(QSharedPointer<DictBencodeNode> node);
 };
 
 #endif // BENCODENODEVISITOR_H

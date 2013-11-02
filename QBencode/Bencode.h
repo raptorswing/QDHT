@@ -10,18 +10,19 @@
 #include "qbencode_global.h"
 
 #include <QByteArray>
+#include <QSharedPointer>
 
 class QBENCODESHARED_EXPORT Bencode
 {
 public:
-    static BencodeNode * parse(QByteArray bytes);
+    static QSharedPointer<BencodeNode> parse(QByteArray bytes);
 
 private:
-    static BencodeNode * _parse(QByteArray &bytes);
-    static IntegerBencodeNode * parseInt(QByteArray & bytes);
-    static ByteStringBencodeNode * parseByteString(QByteArray & bytes);
-    static ListBencodeNode * parseList(QByteArray & bytes);
-    static DictBencodeNode * parseDict(QByteArray & bytes);
+    static QSharedPointer<BencodeNode> _parse(QByteArray &bytes);
+    static QSharedPointer<IntegerBencodeNode> parseInt(QByteArray & bytes);
+    static QSharedPointer<ByteStringBencodeNode> parseByteString(QByteArray & bytes);
+    static QSharedPointer<ListBencodeNode> parseList(QByteArray & bytes);
+    static QSharedPointer<DictBencodeNode> parseDict(QByteArray & bytes);
 
 };
 

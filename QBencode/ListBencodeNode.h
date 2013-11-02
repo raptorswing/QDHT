@@ -4,17 +4,18 @@
 #include "BencodeNode.h"
 
 #include <QList>
+#include <QSharedPointer>
 
 class ListBencodeNode : public BencodeNode
 {
 public:
-    ListBencodeNode(const QList<BencodeNode *>& elements = QList<BencodeNode *>());
+    ListBencodeNode(const QList<QSharedPointer<BencodeNode> >& elements = QList<QSharedPointer<BencodeNode> >());
 
-    const QList<BencodeNode *> elements() const;
-    void setElements(const QList<BencodeNode *>& elements);
+    const QList<QSharedPointer<BencodeNode> > elements() const;
+    void setElements(const QList<QSharedPointer<BencodeNode> >& elements);
 
 private:
-    QList<BencodeNode *> _elements;
+    QList<QSharedPointer<BencodeNode> > _elements;
 };
 
 #endif // LISTBENCODENODE_H

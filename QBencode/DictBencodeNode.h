@@ -5,17 +5,18 @@
 
 #include <QMap>
 #include <QString>
+#include <QSharedPointer>
 
 class DictBencodeNode : public BencodeNode
 {
 public:
-    DictBencodeNode(const QMap<QString, BencodeNode *>& dict = QMap<QString, BencodeNode *>());
+    DictBencodeNode(const QMap<QString, QSharedPointer<BencodeNode> >& dict = QMap<QString, QSharedPointer<BencodeNode> >());
 
-    const QMap<QString, BencodeNode *>& dict() const;
-    void setDict(const QMap<QString, BencodeNode *>& dict);
+    const QMap<QString, QSharedPointer<BencodeNode> >& dict() const;
+    void setDict(const QMap<QString, QSharedPointer<BencodeNode> >& dict);
 
 private:
-    QMap<QString, BencodeNode *> _dict;
+    QMap<QString, QSharedPointer<BencodeNode> > _dict;
 };
 
 #endif // DICTBENCODENODE_H

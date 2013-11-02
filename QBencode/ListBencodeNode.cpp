@@ -1,16 +1,16 @@
 #include "ListBencodeNode.h"
 
-ListBencodeNode::ListBencodeNode(const QList<BencodeNode *> &elements) :
+ListBencodeNode::ListBencodeNode(const QList<QSharedPointer<BencodeNode> > &elements) :
     _elements(elements)
 {
 }
 
-const QList<BencodeNode *> ListBencodeNode::elements() const
+const QList<QSharedPointer<BencodeNode> > ListBencodeNode::elements() const
 {
     return _elements;
 }
 
-void ListBencodeNode::setElements(const QList<BencodeNode *> &elements)
+void ListBencodeNode::setElements(const QList<QSharedPointer<BencodeNode> > &elements)
 {
     _elements = elements;
 }
