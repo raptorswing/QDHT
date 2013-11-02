@@ -18,7 +18,8 @@ SOURCES += \
     ListBencodeNode.cpp \
     DictBencodeNode.cpp \
     BencodeNodeVisitor.cpp \
-    Bencode.cpp
+    Bencode.cpp \
+    WriteBencodeNodeVisitor.cpp
 
 HEADERS +=\
         qbencode_global.h \
@@ -28,7 +29,8 @@ HEADERS +=\
     ListBencodeNode.h \
     DictBencodeNode.h \
     BencodeNodeVisitor.h \
-    Bencode.h
+    Bencode.h \
+    WriteBencodeNodeVisitor.h
 
 unix:!symbian {
     maemo5 {

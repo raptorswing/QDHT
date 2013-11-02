@@ -39,9 +39,9 @@ bool BencodeNodeVisitor::preVisit(DictBencodeNode * node)
     qDebug() << this->getTabs() << "Dict ( size" << node->dict().count() << "):";
     this->increaseTab();
 
-    foreach(const QString& key, node->dict().keys())
+    foreach(const QSharedPointer<ByteStringBencodeNode>& key, node->dict().keys())
     {
-        qDebug() << this->getTabs() << key;
+        qDebug() << this->getTabs() << "Key:" << key->byteString();
         this->increaseTab();
         node->dict().value(key)->accept(this);
         this->decreaseTab();

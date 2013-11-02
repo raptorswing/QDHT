@@ -6,10 +6,22 @@
 
 #include <cctype>
 
+#include "WriteBencodeNodeVisitor.h"
+
 //public static
 QSharedPointer<BencodeNode>Bencode::parse(QByteArray bytes)
 {
     return _parse(bytes);
+}
+
+//public static
+QByteArray Bencode::write(const QSharedPointer<BencodeNode> &topNode)
+{
+    WriteBencodeNodeVisitor * visitor = new WriteBencodeNodeVisitor();
+
+    topNode->accept(visitor);
+
+    return visitor->output();
 }
 
 //private static
@@ -153,18 +165,17 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
 
         qDebug() << "Begin dict";
 
-        QMap<QString, QSharedPointer<BencodeNode> > dictEntries;
+        QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > dictEntries;
 
         //Retrieve dict elements
         while (!bytes.isEmpty() && isdigit(bytes.at(0)))
         {
             //Get the key
             QSharedPointer<ByteStringBencodeNode> keyNameNode = Bencode::parseByteString(bytes);
-            const QByteArray key = keyNameNode->byteString();
 
             //Get the value
             QSharedPointer<BencodeNode> valueNode = Bencode::_parse(bytes);
-            dictEntries.insert(key, valueNode);
+            dictEntries.insert(keyNameNode, valueNode);
         }
 
         //Remove the trailing 'e'

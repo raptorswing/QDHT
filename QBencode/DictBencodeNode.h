@@ -2,6 +2,7 @@
 #define DICTBENCODENODE_H
 
 #include "BencodeNode.h"
+#include "ByteStringBencodeNode.h"
 
 #include <QMap>
 #include <QString>
@@ -10,16 +11,16 @@
 class DictBencodeNode : public BencodeNode
 {
 public:
-    DictBencodeNode(const QMap<QString, QSharedPointer<BencodeNode> >& dict = QMap<QString, QSharedPointer<BencodeNode> >());
+    DictBencodeNode(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >& dict = QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >());
 
-    const QMap<QString, QSharedPointer<BencodeNode> >& dict() const;
-    void setDict(const QMap<QString, QSharedPointer<BencodeNode> >& dict);
+    const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >& dict() const;
+    void setDict(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > &dict);
 
     //pure-virtual from BencodeNode
     virtual void accept(BencodeNodeVisitor * visitor);
 
 private:
-    QMap<QString, QSharedPointer<BencodeNode> > _dict;
+    QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > _dict;
 };
 
 #endif // DICTBENCODENODE_H

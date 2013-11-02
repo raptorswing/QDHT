@@ -17,6 +17,8 @@ class QBENCODESHARED_EXPORT Bencode
 public:
     static QSharedPointer<BencodeNode> parse(QByteArray bytes);
 
+    static QByteArray write(const QSharedPointer<BencodeNode>& topNode);
+
 private:
     static QSharedPointer<BencodeNode> _parse(QByteArray &bytes);
     static QSharedPointer<IntegerBencodeNode> parseInt(QByteArray & bytes);
