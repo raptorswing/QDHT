@@ -1,0 +1,12 @@
+#ifndef QBENCODE_GLOBAL_H
+#define QBENCODE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(QBENCODE_LIBRARY)
+#  define QBENCODESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define QBENCODESHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // QBENCODE_GLOBAL_H
