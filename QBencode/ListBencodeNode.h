@@ -14,6 +14,9 @@ public:
     const QList<QSharedPointer<BencodeNode> > elements() const;
     void setElements(const QList<QSharedPointer<BencodeNode> >& elements);
 
+    //pure-virtual from BencodeNode
+    virtual void accept(BencodeNodeVisitor * visitor);
+
 private:
     QList<QSharedPointer<BencodeNode> > _elements;
 };

@@ -13,6 +13,9 @@ public:
     const QByteArray& byteString() const;
     void setByteString(const QByteArray& byteString);
 
+    //pure-virtual from BencodeNode
+    virtual void accept(BencodeNodeVisitor * visitor);
+
 
 private:
     QByteArray _byteString;

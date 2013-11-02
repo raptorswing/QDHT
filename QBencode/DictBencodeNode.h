@@ -15,6 +15,9 @@ public:
     const QMap<QString, QSharedPointer<BencodeNode> >& dict() const;
     void setDict(const QMap<QString, QSharedPointer<BencodeNode> >& dict);
 
+    //pure-virtual from BencodeNode
+    virtual void accept(BencodeNodeVisitor * visitor);
+
 private:
     QMap<QString, QSharedPointer<BencodeNode> > _dict;
 };

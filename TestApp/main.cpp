@@ -2,6 +2,8 @@
 
 #include "Bencode.h"
 
+#include "BencodeNodeVisitor.h"
+
 int main(int argc, char *argv[])
 {
 
@@ -12,7 +14,10 @@ int main(int argc, char *argv[])
 //    QByteArray asdf = "5:cats!";
 //    QByteArray asdf = "l5:cats!i31337el5:dogs!ee";
 
-    Bencode::parse(asdf);
+    QSharedPointer<BencodeNode> top = Bencode::parse(asdf);
+
+    BencodeNodeVisitor * visitor = new BencodeNodeVisitor();
+    top->accept(visitor);
 
     return a.exec();
 }

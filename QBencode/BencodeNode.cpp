@@ -9,8 +9,3 @@ BencodeNode::~BencodeNode()
 {
 
 }
-
-void BencodeNode::accept()
-{
-
-}

@@ -2,7 +2,8 @@
 
 #include <QtDebug>
 
-BencodeNodeVisitor::BencodeNodeVisitor()
+BencodeNodeVisitor::BencodeNodeVisitor() :
+    _tabLevel(0)
 {
 }
 
@@ -10,22 +11,85 @@ BencodeNodeVisitor::~BencodeNodeVisitor()
 {
 }
 
-void BencodeNodeVisitor::visit(QSharedPointer<IntegerBencodeNode> node)
+bool BencodeNodeVisitor::preVisit(IntegerBencodeNode *node)
 {
-    qDebug() << "Int:" << node->num();
+    qDebug() << this->getTabs() << "Int:" << node->num();
+
+    return true;
 }
 
-void BencodeNodeVisitor::visit(QSharedPointer<ByteStringBencodeNode> node)
+bool BencodeNodeVisitor::preVisit(ByteStringBencodeNode * node)
 {
-    qDebug() << "Byte String:" << node->byteString();
+    qDebug() << this->getTabs() << "Byte String:" << node->byteString();
+
+    return true;
 }
 
-void BencodeNodeVisitor::visit(QSharedPointer<ListBencodeNode> node)
+bool BencodeNodeVisitor::preVisit(ListBencodeNode * node)
 {
-    qDebug() << "List ( size" << node->elements().count() << "):";
+    qDebug() << this->getTabs() << "List ( size" << node->elements().count() << "):";
+
+    this->increaseTab();
+
+    return true;
 }
 
-void BencodeNodeVisitor::visit(QSharedPointer<DictBencodeNode> node)
+bool BencodeNodeVisitor::preVisit(DictBencodeNode * node)
 {
-    qDebug() << "Dict ( size" << node->dict().count() << "):";
+    qDebug() << this->getTabs() << "Dict ( size" << node->dict().count() << "):";
+    this->increaseTab();
+
+    foreach(const QString& key, node->dict().keys())
+    {
+        qDebug() << this->getTabs() << key;
+        this->increaseTab();
+        node->dict().value(key)->accept(this);
+        this->decreaseTab();
+    }
+
+    return false;
+}
+
+void BencodeNodeVisitor::postVisit(IntegerBencodeNode * node)
+{
+    Q_UNUSED(node)
+}
+
+void BencodeNodeVisitor::postVisit(ByteStringBencodeNode * node)
+{
+    Q_UNUSED(node)
+}
+
+void BencodeNodeVisitor::postVisit(ListBencodeNode * node)
+{
+    Q_UNUSED(node)
+    this->decreaseTab();
+}
+
+void BencodeNodeVisitor::postVisit(DictBencodeNode * node)
+{
+    Q_UNUSED(node)
+    this->decreaseTab();
+}
+
+//protected
+QString BencodeNodeVisitor::getTabs() const
+{
+    QString toRet;
+
+    for (int i = 0; i < _tabLevel; i++)
+        toRet += '\t';
+    return toRet;
+}
+
+//protected
+void BencodeNodeVisitor::increaseTab()
+{
+    _tabLevel = qBound<uint>(0, ++_tabLevel, 10);
+}
+
+//protected
+void BencodeNodeVisitor::decreaseTab()
+{
+    _tabLevel = qBound<uint>(0, --_tabLevel, 10);
 }

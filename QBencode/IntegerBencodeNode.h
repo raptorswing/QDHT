@@ -14,6 +14,9 @@ public:
     qint64 num() const;
     void setNum(qint64 num);
 
+    //pure-virtual from BencodeNode
+    virtual void accept(BencodeNodeVisitor * visitor);
+
 private:
     qint64 _num;
 };

@@ -3,6 +3,8 @@
 
 #include "qbencode_global.h"
 
+class BencodeNodeVisitor;
+
 class QBENCODESHARED_EXPORT BencodeNode
 {
 public:
@@ -18,7 +20,7 @@ public:
     BencodeNode();
     virtual ~BencodeNode();
 
-    virtual void accept();
+    virtual void accept(BencodeNodeVisitor * visitor) =0;
 };
 
 #endif // BENCODENODE_H
