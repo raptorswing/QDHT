@@ -20,6 +20,14 @@ public:
                   quint16 transactionID,
                   const NodeID& myNodeID);
 
+    void sendPong(const QHostAddress& destHost,
+                  quint16 destPort,
+                  quint16 transactionID,
+                  const NodeID& myNodeID);
+
+public slots:
+    void test();
+
 private:
     static QByteArray transactionIDToBytes(quint16 transactionID);
     QUdpSocket * _socket;

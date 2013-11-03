@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
 
     QDHT dht;
 
-    dht.sendPing(QHostAddress("127.0.0.1"), 5050, 500, NodeID::GenerateFromBytes("testamundo"));
-
 
     return a.exec();
 }
