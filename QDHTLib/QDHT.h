@@ -6,8 +6,8 @@
 #include "NodeID.h"
 
 #include "DictBencodeNode.h"
-#include "DHTMessageSender.h"
-#include "DHTMessageHandler.h"
+#include "interfaces/DHTMessageSender.h"
+#include "interfaces/DHTMessageHandler.h"
 
 #include <QHostAddress>
 #include <QUdpSocket>

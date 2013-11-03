@@ -18,15 +18,15 @@ DEFINES += QDHTLIB_LIBRARY
 SOURCES += QDHT.cpp \
     BootstrapTest.cpp \
     NodeID.cpp \
-    DHTMessageHandler.cpp \
-    DHTMessageSender.cpp
+    interfaces\DHTMessageHandler.cpp \
+    interfaces\DHTMessageSender.cpp
 
 HEADERS += QDHT.h\
         qdhtlib_global.h \
     BootstrapTest.h \
     NodeID.h \
-    DHTMessageHandler.h \
-    DHTMessageSender.h
+    interfaces\DHTMessageHandler.h \
+    interfaces\DHTMessageSender.h
 
 unix:!symbian {
     maemo5 {
