@@ -24,14 +24,15 @@ const QByteArray RESPONSE_ARGS_KEY = "r";
 QDHT::QDHT()
 {
     _socket = new QUdpSocket(this);
-    _socket->bind();
+    if (!_socket->bind(6881))
+        qWarning() << "Failed to bind socket";
+    else
+        qDebug() << "Bound to" << _socket->localAddress() << _socket->localPort();
 
     connect(_socket,
             SIGNAL(readyRead()),
             this,
             SLOT(handleIncomingBytes()));
-
-    qDebug() << "Bound to" << _socket->localAddress() << _socket->localPort();
 
     QTimer::singleShot(1, this, SLOT(test()));
 }
@@ -77,12 +78,17 @@ void QDHT::sendPong(const QHostAddress &destHost, quint16 destPort, quint16 tran
     _socket->writeDatagram(bytes, destHost, destPort);
 }
 
+void QDHT::addMessageHandler(const QSharedPointer<DHTMessageHandler> &handler)
+{
+    _messageHandlers.append(handler);
+}
+
 void QDHT::test()
 {
 //    QHostInfo info = QHostInfo::fromName("router.bittorrent.com");
 //    this->sendPing(info.addresses()[0], 6881, 500, NodeID::GenerateFromBytes("testamundo"));
 
-    this->sendPing(QHostAddress("77.197.61.41"), 6881, 500, NodeID::GenerateFromBytes("testagmundo"));
+    this->sendPing(QHostAddress("94.189.233.186"), 6881, 500, NodeID::GenerateFromBytes("testagmundo"));
 }
 
 //private slot
@@ -190,32 +196,28 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
 }
 
 //private slot
-void QDHT::beginProcessQuery(const QHostAddress &srcIP, quint16 srcPort, const QByteArray &queryType, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+void QDHT::beginProcessQuery(const QHostAddress &srcIP,
+                             quint16 srcPort,
+                             const QByteArray &queryType,
+                             const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
-    if (queryType == "ping")
+    foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
     {
-
+        if (handler->handleQuery(srcIP, srcPort, queryType, queryArgs))
+            break;
     }
-    else if (queryType == "find_node")
-    {
-
-    }
-    else if (queryType == "get_peers")
-    {
-
-    }
-    else if (queryType == "announce_peer")
-    {
-
-    }
-    else
-        qWarning() << "Unknown query type" << queryType;
 }
 
 //private slot
-void QDHT::beginProcessResponse(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
+void QDHT::beginProcessResponse(const QHostAddress &srcIP,
+                                quint16 srcPort,
+                                const QMap<QByteArray,QSharedPointer<BencodeNode> > &responseArgs)
 {
-
+    foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
+    {
+        if (handler->handleResponse(srcIP, srcPort, responseArgs))
+            break;
+    }
 }
 
 //private static
