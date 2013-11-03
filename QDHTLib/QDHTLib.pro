@@ -17,13 +17,11 @@ DEFINES += QDHTLIB_LIBRARY
 
 SOURCES += QDHT.cpp \
     BootstrapTest.cpp \
-    KRPCMessage.cpp \
     NodeID.cpp
 
 HEADERS += QDHT.h\
         qdhtlib_global.h \
     BootstrapTest.h \
-    KRPCMessage.h \
     NodeID.h
 
 unix:!symbian {

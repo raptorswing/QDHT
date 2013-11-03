@@ -8,12 +8,28 @@
 #include "Bencode.h"
 #include "BencodeNode.h"
 #include "DictBencodeNode.h"
+#include "BencodeNodeVisitor.h"
 
+const QByteArray TRANS_ID_KEY = "t";
+
+const QByteArray MSG_TYPE_KEY = "y";
+const QByteArray QUERY_MSG_TYPE = "q";
+const QByteArray RESPONSE_MSG_TYPE = "r";
+
+const QByteArray QUERY_TYPE_KEY = "q";
+const QByteArray QUERY_ARGS_KEY = "a";
+
+const QByteArray RESPONSE_ARGS_KEY = "r";
 
 QDHT::QDHT()
 {
     _socket = new QUdpSocket(this);
     _socket->bind();
+
+    connect(_socket,
+            SIGNAL(readyRead()),
+            this,
+            SLOT(handleIncomingBytes()));
 
     qDebug() << "Bound to" << _socket->localAddress() << _socket->localPort();
 
@@ -25,10 +41,10 @@ void QDHT::sendPing(const QHostAddress &destHost, quint16 destPort, quint16 tran
     QSharedPointer<DictBencodeNode> msg(new DictBencodeNode());
 
     //t - transactionID
-    msg->insert("t", QDHT::transactionIDToBytes(transactionID));
+    msg->insert(TRANS_ID_KEY, QDHT::transactionIDToBytes(transactionID));
 
     //y - "q" for "query"
-    msg->insert("y", "q");
+    msg->insert(MSG_TYPE_KEY, "q");
 
     //q - "ping"
     msg->insert("q", "ping");
@@ -47,10 +63,10 @@ void QDHT::sendPong(const QHostAddress &destHost, quint16 destPort, quint16 tran
     QSharedPointer<DictBencodeNode> msg(new DictBencodeNode());
 
     //t - transactionID
-    msg->insert("t", QDHT::transactionIDToBytes(transactionID));
+    msg->insert(TRANS_ID_KEY, QDHT::transactionIDToBytes(transactionID));
 
     //y - "r" for "reply"
-    msg->insert("y", "r");
+    msg->insert(MSG_TYPE_KEY, "r");
 
     QSharedPointer<DictBencodeNode> arguments(new DictBencodeNode());
     arguments->insert("id", myNodeID.bytes());
@@ -66,7 +82,140 @@ void QDHT::test()
 //    QHostInfo info = QHostInfo::fromName("router.bittorrent.com");
 //    this->sendPing(info.addresses()[0], 6881, 500, NodeID::GenerateFromBytes("testamundo"));
 
-    this->sendPing(QHostAddress("37.187.19.19"), 6881, 500, NodeID::GenerateFromBytes("testagmundo"));
+    this->sendPing(QHostAddress("77.197.61.41"), 6881, 500, NodeID::GenerateFromBytes("testagmundo"));
+}
+
+//private slot
+void QDHT::handleIncomingBytes()
+{
+    while (_socket->hasPendingDatagrams())
+    {
+        const qint64 desiredBytes = _socket->pendingDatagramSize();
+        QByteArray datagramBytes(desiredBytes, '0');
+
+        QHostAddress srcIP;
+        quint16 srcPort;
+
+        const qint64 numBytesRead = _socket->readDatagram(datagramBytes.data(), desiredBytes, &srcIP, &srcPort);
+
+        if (numBytesRead != desiredBytes)
+        {
+            qWarning() << "Failed to read correct number of datagram bytes!";
+            continue;
+        }
+
+        this->beginProcessMessage(srcIP, srcPort, datagramBytes);
+    }
+}
+
+//private slot
+void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const QByteArray &bytes)
+{
+    QSharedPointer<BencodeNode> parseTree = Bencode::parse(bytes);
+
+    if (parseTree.isNull() || parseTree->type() != BencodeNode::DictNodeType)
+    {
+        qWarning() << "Bad parse from" << srcIP << srcPort << ":" << bytes;
+        return;
+    }
+
+    QSharedPointer<DictBencodeNode> dict = parseTree.dynamicCast<DictBencodeNode>();
+    if (dict.isNull())
+    {
+        qWarning() << "Cast Failure";
+        return;
+    }
+    else if (!dict->containsKey(TRANS_ID_KEY) || !dict->containsKey(MSG_TYPE_KEY))
+    {
+        qWarning() << "Incomplete message";
+        return;
+    }
+
+    QSharedPointer<ByteStringBencodeNode> transIDNode = dict->dict().value(TRANS_ID_KEY).dynamicCast<ByteStringBencodeNode>();
+    QSharedPointer<ByteStringBencodeNode> msgTypeNode = dict->dict().value(MSG_TYPE_KEY).dynamicCast<ByteStringBencodeNode>();
+
+    if (transIDNode.isNull() || msgTypeNode.isNull())
+    {
+        qWarning() << "Invalid transaction id node or invalid msg type node";
+        return;
+    }
+    else if (transIDNode->byteString().size() != 2)
+    {
+        qWarning() << "Transaction ID must be two bytes only!";
+        return;
+    }
+    else if (msgTypeNode->byteString().count() != 1)
+    {
+        qWarning() << "Msg type must be one byte only!";
+        return;
+    }
+
+    const quint16 transactionID = QDHT::bytesToTransactionID(transIDNode->byteString());
+    const char msgType = msgTypeNode->byteString().at(0);
+
+    if (msgType == QUERY_MSG_TYPE.at(0) && dict->containsKey(QUERY_TYPE_KEY) && dict->containsKey(QUERY_ARGS_KEY))
+    {
+        qDebug() << "Got query";
+        QSharedPointer<ByteStringBencodeNode> queryTypeNode = dict->dict().value(QUERY_TYPE_KEY).dynamicCast<ByteStringBencodeNode>();
+        QSharedPointer<DictBencodeNode> queryArgsNode = dict->dict().value(QUERY_ARGS_KEY).dynamicCast<DictBencodeNode>();
+
+        if (!queryArgsNode.isNull() && !queryTypeNode.isNull())
+            this->beginProcessQuery(srcIP, srcPort, queryTypeNode->byteString(), queryArgsNode->dict());
+        else
+            qWarning() << "Query has no arguments";
+    }
+    else if (msgType == RESPONSE_MSG_TYPE.at(0) && dict->containsKey(RESPONSE_ARGS_KEY))
+    {
+        qDebug() << "Got response";
+        QSharedPointer<DictBencodeNode> responseArgsNode = dict->dict().value(RESPONSE_ARGS_KEY).dynamicCast<DictBencodeNode>();
+        if (!responseArgsNode.isNull())
+            this->beginProcessResponse(srcIP, srcPort, responseArgsNode->dict());
+        else
+            qWarning() << "Response has no arguments";
+    }
+    else
+    {
+        qWarning() << "Unknown message type or invalid arguments" << msgType;
+        return;
+    }
+
+    qDebug() << "Msg type:" << msgType << "Trans. ID:" << transactionID;
+
+    {
+        qDebug() << "Message from" << srcIP << srcPort;
+        BencodeNodeVisitor * visitor = new BencodeNodeVisitor();
+        parseTree->accept(visitor);
+        delete visitor;
+    }
+}
+
+//private slot
+void QDHT::beginProcessQuery(const QHostAddress &srcIP, quint16 srcPort, const QByteArray &queryType, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+{
+    if (queryType == "ping")
+    {
+
+    }
+    else if (queryType == "find_node")
+    {
+
+    }
+    else if (queryType == "get_peers")
+    {
+
+    }
+    else if (queryType == "announce_peer")
+    {
+
+    }
+    else
+        qWarning() << "Unknown query type" << queryType;
+}
+
+//private slot
+void QDHT::beginProcessResponse(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
+{
+
 }
 
 //private static
@@ -76,5 +225,15 @@ QByteArray QDHT::transactionIDToBytes(quint16 transactionID)
     QDataStream stream(&toRet, QIODevice::WriteOnly);
 
     stream << transactionID;
+    return toRet;
+}
+
+//private static
+quint16 QDHT::bytesToTransactionID(const QByteArray &transactionIDBytes)
+{
+    QDataStream stream(transactionIDBytes);
+
+    quint16 toRet;
+    stream >> toRet;
     return toRet;
 }
