@@ -13,6 +13,10 @@ void BootstrapTest::start()
     this->cleanup();
 
     _socket = new QUdpSocket(this);
+    _socket->bind(0);
+    qDebug() << "Sending from port" << _socket->localPort();
+
+
 
 }
 

@@ -9,6 +9,8 @@ QT       -= gui
 TARGET = QBencode
 TEMPLATE = lib
 
+INCLUDEPATH += .
+
 DEFINES += QBENCODE_LIBRARY
 
 SOURCES += \

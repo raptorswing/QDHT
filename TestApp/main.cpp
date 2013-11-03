@@ -4,6 +4,8 @@
 #include "Bencode.h"
 #include "BencodeNodeVisitor.h"
 
+#include "QDHT.h"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -28,6 +30,9 @@ int main(int argc, char *argv[])
 
 //    qDebug() << Bencode::write(top);
 
+    QDHT dht;
+
+    dht.sendPing(QHostAddress("127.0.0.1"), 5050, 500, NodeID::GenerateFromBytes("testamundo"));
 
 
     return a.exec();

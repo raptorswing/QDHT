@@ -29,12 +29,14 @@ bool WriteBencodeNodeVisitor::preVisit(ByteStringBencodeNode *node)
 
 bool WriteBencodeNodeVisitor::preVisit(ListBencodeNode *node)
 {
+    Q_UNUSED(node)
     _output += "l";
     return true;
 }
 
 bool WriteBencodeNodeVisitor::preVisit(DictBencodeNode *node)
 {
+    Q_UNUSED(node)
     _output += "d";
     return true;
 }
@@ -51,10 +53,12 @@ bool WriteBencodeNodeVisitor::preVisit(DictBencodeNode *node)
 
 void WriteBencodeNodeVisitor::postVisit(ListBencodeNode *node)
 {
+    Q_UNUSED(node)
     _output += "e";
 }
 
 void WriteBencodeNodeVisitor::postVisit(DictBencodeNode *node)
 {
+    Q_UNUSED(node)
     _output += "e";
 }

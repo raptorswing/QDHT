@@ -8,6 +8,8 @@ QT       += core network
 
 QT       -= gui
 
+INCLUDEPATH += .
+
 TARGET = TestApp
 CONFIG   += console
 CONFIG   -= app_bundle
