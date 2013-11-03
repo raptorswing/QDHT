@@ -23,7 +23,8 @@ bool WriteBencodeNodeVisitor::preVisit(IntegerBencodeNode *node)
 
 bool WriteBencodeNodeVisitor::preVisit(ByteStringBencodeNode *node)
 {
-    _output += QString::number(node->byteString().length()) + ":" + node->byteString();
+    _output += QString::number(node->byteString().length()) + ":";
+    _output += node->byteString();
     return true;
 }
 
