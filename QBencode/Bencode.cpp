@@ -134,6 +134,9 @@ QSharedPointer<ListBencodeNode> Bencode::parseList(QByteArray &bytes)
         while (!bytes.isEmpty() && bytes.at(0) != 'e')
         {
             QSharedPointer<BencodeNode> node = Bencode::_parse(bytes);
+            if (node.isNull())
+                return toRet;
+
             listEntries.append(node);
         }
 
@@ -175,6 +178,10 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
 
             //Get the value
             QSharedPointer<BencodeNode> valueNode = Bencode::_parse(bytes);
+
+            if (keyNameNode.isNull() || valueNode.isNull())
+                return toRet;
+
             dictEntries.insert(keyNameNode->byteString(), valueNode);
         }
 
