@@ -8,6 +8,8 @@
 
 #include "WriteBencodeNodeVisitor.h"
 
+const bool BENCODE_DEBUG = false;
+
 //public static
 QSharedPointer<BencodeNode>Bencode::parse(QByteArray bytes)
 {
@@ -72,7 +74,7 @@ QSharedPointer<IntegerBencodeNode> Bencode::parseInt(QByteArray &bytes)
     {
         bytes.remove(0, endIndex + 1);
 
-        qDebug() << "Parsed int" << result;
+        if (BENCODE_DEBUG) qDebug() << "Parsed int" << result;
 
         toRet = QSharedPointer<IntegerBencodeNode>(new IntegerBencodeNode(result));
     }
@@ -103,7 +105,7 @@ QSharedPointer<ByteStringBencodeNode> Bencode::parseByteString(QByteArray &bytes
         const QByteArray string = bytes.mid(endLengthIndex + 1, lengthResult);
         bytes.remove(0, endLengthIndex + lengthResult + 1);
 
-        qDebug() << "Parsed bytestring" << string;
+        if (BENCODE_DEBUG) qDebug() << "Parsed bytestring" << string;
 
         toRet = QSharedPointer<ByteStringBencodeNode>(new ByteStringBencodeNode(string));
     }
@@ -126,7 +128,7 @@ QSharedPointer<ListBencodeNode> Bencode::parseList(QByteArray &bytes)
         //Remove the beginning 'l'
         bytes.remove(0,1);
 
-        qDebug() << "Begin list";
+        if (BENCODE_DEBUG) qDebug() << "Begin list";
 
         QList<QSharedPointer<BencodeNode> > listEntries;
 
@@ -143,7 +145,7 @@ QSharedPointer<ListBencodeNode> Bencode::parseList(QByteArray &bytes)
         //Remove the trailing 'e'
         bytes.remove(0,1);
 
-        qDebug() << "End list";
+        if (BENCODE_DEBUG) qDebug() << "End list";
 
         toRet = QSharedPointer<ListBencodeNode>(new ListBencodeNode(listEntries));
     }
@@ -166,7 +168,7 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
         //Remove the beginning 'd'
         bytes.remove(0,1);
 
-        qDebug() << "Begin dict";
+        if (BENCODE_DEBUG) qDebug() << "Begin dict";
 
         QMap<QByteArray, QSharedPointer<BencodeNode> > dictEntries;
 
@@ -188,7 +190,7 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
         //Remove the trailing 'e'
         bytes.remove(0,1);
 
-        qDebug() << "End dict";
+        if (BENCODE_DEBUG) qDebug() << "End dict";
 
         toRet = QSharedPointer<DictBencodeNode>(new DictBencodeNode(dictEntries));
     }
