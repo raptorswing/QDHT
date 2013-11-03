@@ -2,31 +2,26 @@
 
 #include "BencodeNodeVisitor.h"
 
-DictBencodeNode::DictBencodeNode(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > &dict) :
+DictBencodeNode::DictBencodeNode(const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict) :
     _dict(dict)
 {
 }
 
-const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > &DictBencodeNode::dict() const
+const QMap<QByteArray, QSharedPointer<BencodeNode> > &DictBencodeNode::dict() const
 {
     return _dict;
 }
 
-void DictBencodeNode::setDict(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > &dict)
+void DictBencodeNode::setDict(const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict)
 {
     _dict = dict;
-}
-
-void DictBencodeNode::insert(const QSharedPointer<ByteStringBencodeNode> &key, const QSharedPointer<BencodeNode> &value)
-{
-    _dict.insert(key, value);
 }
 
 void DictBencodeNode::insert(const QString &key, const QSharedPointer<BencodeNode> &value)
 {
     QByteArray bKey;
     bKey += key;
-    _dict.insert(QSharedPointer<ByteStringBencodeNode>(new ByteStringBencodeNode(bKey)),
+    _dict.insert(bKey,
                  value);
 }
 
@@ -43,10 +38,12 @@ void DictBencodeNode::accept(BencodeNodeVisitor *visitor)
 
     if (doTraversal)
     {
-        foreach(const QSharedPointer<ByteStringBencodeNode>& keyNode, _dict.keys())
+        foreach(const QByteArray& keyVal, _dict.keys())
         {
-            keyNode->accept(visitor);
-            _dict.value(keyNode)->accept(visitor);
+            //Fakin' it
+            QSharedPointer<ByteStringBencodeNode> temp(new ByteStringBencodeNode(keyVal));
+            temp->accept(visitor);
+            _dict.value(keyVal)->accept(visitor);
         }
     }
 

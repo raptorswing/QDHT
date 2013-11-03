@@ -12,13 +12,10 @@
 class QBENCODESHARED_EXPORT DictBencodeNode : public BencodeNode
 {
 public:
-    DictBencodeNode(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >& dict = QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >());
+    DictBencodeNode(const QMap<QByteArray, QSharedPointer<BencodeNode> >& dict = QMap<QByteArray, QSharedPointer<BencodeNode> >());
 
-    const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> >& dict() const;
-    void setDict(const QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > &dict);
-
-    void insert(const QSharedPointer<ByteStringBencodeNode>& key,
-                const QSharedPointer<BencodeNode>& value);
+    const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict() const;
+    void setDict(const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict);
 
     void insert(const QString& key,
                 const QSharedPointer<BencodeNode>& value);
@@ -30,7 +27,7 @@ public:
     virtual void accept(BencodeNodeVisitor * visitor);
 
 private:
-    QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > _dict;
+    QMap<QByteArray, QSharedPointer<BencodeNode> > _dict;
 };
 
 #endif // DICTBENCODENODE_H

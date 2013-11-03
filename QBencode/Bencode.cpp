@@ -165,7 +165,7 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
 
         qDebug() << "Begin dict";
 
-        QMap<QSharedPointer<ByteStringBencodeNode>, QSharedPointer<BencodeNode> > dictEntries;
+        QMap<QByteArray, QSharedPointer<BencodeNode> > dictEntries;
 
         //Retrieve dict elements
         while (!bytes.isEmpty() && isdigit(bytes.at(0)))
@@ -175,7 +175,7 @@ QSharedPointer<DictBencodeNode> Bencode::parseDict(QByteArray &bytes)
 
             //Get the value
             QSharedPointer<BencodeNode> valueNode = Bencode::_parse(bytes);
-            dictEntries.insert(keyNameNode, valueNode);
+            dictEntries.insert(keyNameNode->byteString(), valueNode);
         }
 
         //Remove the trailing 'e'
