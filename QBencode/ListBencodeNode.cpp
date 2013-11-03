@@ -30,3 +30,9 @@ void ListBencodeNode::accept(BencodeNodeVisitor *visitor)
 
     visitor->postVisit(this);
 }
+
+//pure-virtual from BencodeNode
+BencodeNode::BencodeNodeType ListBencodeNode::type() const
+{
+    return ListNodeType;
+}

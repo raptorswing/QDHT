@@ -23,3 +23,9 @@ void ByteStringBencodeNode::accept(BencodeNodeVisitor * visitor)
     visitor->preVisit(this);
     visitor->postVisit(this);
 }
+
+//pure-virtual from BencodeNode
+BencodeNode::BencodeNodeType ByteStringBencodeNode::type() const
+{
+    return ByteStringNodeType;
+}

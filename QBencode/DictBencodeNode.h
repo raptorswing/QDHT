@@ -17,14 +17,19 @@ public:
     const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict() const;
     void setDict(const QMap<QByteArray, QSharedPointer<BencodeNode> > &dict);
 
-    void insert(const QString& key,
+    void insert(const QByteArray& key,
                 const QSharedPointer<BencodeNode>& value);
 
-    void insert(const QString& key,
+    void insert(const QByteArray& key,
                 const QByteArray& value);
+
+    bool containsKey(const QByteArray& key);
 
     //pure-virtual from BencodeNode
     virtual void accept(BencodeNodeVisitor * visitor);
+
+    //pure-virtual from BencodeNode
+    virtual BencodeNodeType type() const;
 
 private:
     QMap<QByteArray, QSharedPointer<BencodeNode> > _dict;

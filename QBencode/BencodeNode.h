@@ -10,10 +10,10 @@ class QBENCODESHARED_EXPORT BencodeNode
 public:
     enum BencodeNodeType
     {
-        Integer,
-        ByteString,
-        List,
-        Dictionary
+        IntegerNodeType,
+        ByteStringNodeType,
+        ListNodeType,
+        DictNodeType
     };
 
 public:
@@ -21,6 +21,8 @@ public:
     virtual ~BencodeNode();
 
     virtual void accept(BencodeNodeVisitor * visitor) =0;
+
+    virtual BencodeNodeType type() const =0;
 };
 
 #endif // BENCODENODE_H

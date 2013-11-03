@@ -25,3 +25,9 @@ void IntegerBencodeNode::accept(BencodeNodeVisitor *visitor)
     visitor->preVisit(this);
     visitor->postVisit(this);
 }
+
+//pure-virtual from BencodeNode
+BencodeNode::BencodeNodeType IntegerBencodeNode::type() const
+{
+    return IntegerNodeType;
+}

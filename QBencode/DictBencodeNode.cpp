@@ -17,7 +17,7 @@ void DictBencodeNode::setDict(const QMap<QByteArray, QSharedPointer<BencodeNode>
     _dict = dict;
 }
 
-void DictBencodeNode::insert(const QString &key, const QSharedPointer<BencodeNode> &value)
+void DictBencodeNode::insert(const QByteArray &key, const QSharedPointer<BencodeNode> &value)
 {
     QByteArray bKey;
     bKey += key;
@@ -25,10 +25,15 @@ void DictBencodeNode::insert(const QString &key, const QSharedPointer<BencodeNod
                  value);
 }
 
-void DictBencodeNode::insert(const QString &key, const QByteArray &value)
+void DictBencodeNode::insert(const QByteArray &key, const QByteArray &value)
 {
     this->insert(key,
                  QSharedPointer<BencodeNode>(new ByteStringBencodeNode(value)));
+}
+
+bool DictBencodeNode::containsKey(const QByteArray &key)
+{
+    return _dict.contains(key);
 }
 
 //pure-virtual from BencodeNode
@@ -48,4 +53,10 @@ void DictBencodeNode::accept(BencodeNodeVisitor *visitor)
     }
 
     visitor->postVisit(this);
+}
+
+//pure-virtual from BencodeNode
+BencodeNode::BencodeNodeType DictBencodeNode::type() const
+{
+    return DictNodeType;
 }

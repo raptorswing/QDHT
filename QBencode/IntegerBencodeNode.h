@@ -17,6 +17,9 @@ public:
     //pure-virtual from BencodeNode
     virtual void accept(BencodeNodeVisitor * visitor);
 
+    //pure-virtual from BencodeNode
+    virtual BencodeNodeType type() const;
+
 private:
     qint64 _num;
 };
