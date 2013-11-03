@@ -2,10 +2,11 @@
 #define BYTESTRINGBENCODENODE_H
 
 #include "BencodeNode.h"
+#include "qbencode_global.h"
 
 #include <QByteArray>
 
-class ByteStringBencodeNode : public BencodeNode
+class QBENCODESHARED_EXPORT ByteStringBencodeNode : public BencodeNode
 {
 public:
     ByteStringBencodeNode(const QByteArray& byteString);

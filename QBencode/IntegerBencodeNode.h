@@ -2,6 +2,7 @@
 #define INTEGERBENCODENODE_H
 
 #include "BencodeNode.h"
+#include "qbencode_global.h"
 
 #include <QtGlobal>
 #include <QByteArray>
