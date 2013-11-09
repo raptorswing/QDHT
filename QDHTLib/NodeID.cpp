@@ -55,3 +55,19 @@ NodeID NodeID::GenerateFromString(const QString &string)
     bytes += string;
     return NodeID::GenerateFromBytes(bytes);
 }
+
+bool NodeID::operator==(const NodeID &other) const
+{
+    return other.bytes() == this->bytes();
+}
+
+bool NodeID::operator!=(const NodeID &other) const
+{
+    return !(*this == other);
+}
+
+//non-member
+uint qHash(const NodeID &node)
+{
+    return qHash(node.bytes());
+}

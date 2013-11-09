@@ -22,8 +22,13 @@ public:
     static NodeID GenerateFromBytes(const QByteArray& bytes);
     static NodeID GenerateFromString(const QString& string);
 
+    bool operator==(const NodeID& other) const;
+    bool operator!=(const NodeID& other) const;
+
 private:
     QByteArray _id;
 };
+
+uint qHash(const NodeID& node);
 
 #endif // NODEID_H
