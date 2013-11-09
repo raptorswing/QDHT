@@ -63,24 +63,28 @@ QSharedPointer<IntegerBencodeNode> Bencode::parseInt(QByteArray &bytes)
     QSharedPointer<IntegerBencodeNode> toRet;
 
     int endIndex = bytes.indexOf('e');
-    bool ok;
-    qint64 result;
 
-    if (!bytes.isEmpty()
-            && bytes.at(0) == 'i'
-            && endIndex != -1
-            && (result = bytes.mid(1, endIndex - 1).toLongLong(&ok)) == result
-            && ok)
+    if (bytes.isEmpty()
+            || bytes.at(0) != 'i'
+            || endIndex == -1)
     {
-        bytes.remove(0, endIndex + 1);
-
-        if (BENCODE_DEBUG) qDebug() << "Parsed int" << result;
-
-        toRet = QSharedPointer<IntegerBencodeNode>(new IntegerBencodeNode(result));
+        qWarning() << "Failed to parse int" << bytes;
     }
     else
     {
-        qWarning() << "Failed to parse int" << bytes;
+        bool ok;
+        qint64 result = bytes.mid(1, endIndex - 1).toLongLong(&ok);
+
+        if (ok)
+        {
+            bytes.remove(0, endIndex + 1);
+
+            if (BENCODE_DEBUG) qDebug() << "Parsed int" << result;
+
+            toRet = QSharedPointer<IntegerBencodeNode>(new IntegerBencodeNode(result));
+        }
+        else
+            qWarning() << "Failed to parse int" << bytes;
     }
 
     return toRet;
@@ -92,26 +96,29 @@ QSharedPointer<ByteStringBencodeNode> Bencode::parseByteString(QByteArray &bytes
     QSharedPointer<ByteStringBencodeNode> toRet;
 
     int endLengthIndex = bytes.indexOf(':');
-    bool ok;
-    qint64 lengthResult;
 
-    if (!bytes.isEmpty()
-            && isdigit(bytes.at(0))
-            && endLengthIndex != -1
-            && (lengthResult = bytes.mid(0, endLengthIndex).toLongLong(&ok)) == lengthResult
-            && ok
-            && bytes.length() >= lengthResult + endLengthIndex)
+    if (bytes.isEmpty()
+            || !isdigit(bytes.at(0))
+            || endLengthIndex == -1)
     {
-        const QByteArray string = bytes.mid(endLengthIndex + 1, lengthResult);
-        bytes.remove(0, endLengthIndex + lengthResult + 1);
-
-        if (BENCODE_DEBUG) qDebug() << "Parsed bytestring" << string;
-
-        toRet = QSharedPointer<ByteStringBencodeNode>(new ByteStringBencodeNode(string));
+        qWarning() << "Failed to parse bytestring" << bytes;
     }
     else
     {
-        qWarning() << "Failed to parse bytestring" << bytes;
+        bool ok;
+        const qint64 lengthResult = bytes.mid(0, endLengthIndex).toLongLong(&ok);
+
+        if (ok && bytes.length() >= lengthResult + endLengthIndex)
+        {
+            const QByteArray string = bytes.mid(endLengthIndex + 1, lengthResult);
+            bytes.remove(0, endLengthIndex + lengthResult + 1);
+
+            if (BENCODE_DEBUG) qDebug() << "Parsed bytestring" << string;
+
+            toRet = QSharedPointer<ByteStringBencodeNode>(new ByteStringBencodeNode(string));
+        }
+        else
+            qWarning() << "Failed to parse bytestring" << bytes;
     }
 
     return toRet;

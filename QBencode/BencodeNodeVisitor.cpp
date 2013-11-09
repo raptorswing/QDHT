@@ -85,11 +85,11 @@ QString BencodeNodeVisitor::getTabs() const
 //protected
 void BencodeNodeVisitor::increaseTab()
 {
-    _tabLevel = qBound<uint>(0, ++_tabLevel, 10);
+    _tabLevel = qBound<uint>(0, _tabLevel + 1, 10);
 }
 
 //protected
 void BencodeNodeVisitor::decreaseTab()
 {
-    _tabLevel = qBound<uint>(0, --_tabLevel, 10);
+    _tabLevel = qBound<uint>(0, _tabLevel - 1, 10);
 }
