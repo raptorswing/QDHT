@@ -39,10 +39,17 @@ QDHT::QDHT()
 
     QTimer::singleShot(1, this, SLOT(test()));
 
-    this->addMessageHandler(QSharedPointer<DefaultMessageHandler>(new DefaultMessageHandler(this)));
+    //Add default msg handler
+    QSharedPointer<DHTMessageHandler> handler(new DefaultMessageHandler(this, NodeID::GenerateFromBytes("testagmundo")));
+    this->addMessageHandler(handler);
 }
 
-void QDHT::sendPing(const QHostAddress &destHost, quint16 destPort, quint16 transactionID, const NodeID &myNodeID)
+QDHT::~QDHT()
+{
+
+}
+
+void QDHT::sendPing(const IPPort &dest, quint16 transactionID, const NodeID &myNodeID)
 {
     QSharedPointer<DictBencodeNode> msg(new DictBencodeNode());
 
@@ -61,10 +68,10 @@ void QDHT::sendPing(const QHostAddress &destHost, quint16 destPort, quint16 tran
     msg->insert("a", arguments);
 
     const QByteArray bytes = Bencode::write(msg);
-    _socket->writeDatagram(bytes, destHost, destPort);
+    _socket->writeDatagram(bytes, dest.host(), dest.port());
 }
 
-void QDHT::sendPong(const QHostAddress &destHost, quint16 destPort, quint16 transactionID, const NodeID &myNodeID)
+void QDHT::sendPong(const IPPort &dest, quint16 transactionID, const NodeID &myNodeID)
 {
     QSharedPointer<DictBencodeNode> msg(new DictBencodeNode());
 
@@ -80,7 +87,7 @@ void QDHT::sendPong(const QHostAddress &destHost, quint16 destPort, quint16 tran
     msg->insert("r", arguments);
 
     const QByteArray bytes = Bencode::write(msg);
-    _socket->writeDatagram(bytes, destHost, destPort);
+    _socket->writeDatagram(bytes, dest.host(), dest.port());
 }
 
 void QDHT::addMessageHandler(const QSharedPointer<DHTMessageHandler> &handler)
@@ -93,7 +100,12 @@ void QDHT::test()
 //    QHostInfo info = QHostInfo::fromName("router.bittorrent.com");
 //    this->sendPing(info.addresses()[0], 6881, 500, NodeID::GenerateFromBytes("testamundo"));
 
-    this->sendPing(QHostAddress("94.189.233.186"), 6881, 500, NodeID::GenerateFromBytes("testagmundo"));
+    //this->sendPing(IPPort(QHostAddress("94.189.233.186"), 6881), 500, NodeID::GenerateFromBytes("testagmundo"));
+    QByteArray test = QByteArray(20, (char)0);
+    test[19] = 255;
+    NodeID testNodeID = NodeID(test);
+
+    qDebug() << testNodeID.toBigUint().ToString().c_str();
 }
 
 //private slot
@@ -171,7 +183,7 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
         QSharedPointer<DictBencodeNode> queryArgsNode = dict->dict().value(QUERY_ARGS_KEY).dynamicCast<DictBencodeNode>();
 
         if (!queryArgsNode.isNull() && !queryTypeNode.isNull())
-            this->beginProcessQuery(IPPort(srcIP, srcPort), queryTypeNode->byteString(), queryArgsNode->dict());
+            this->beginProcessQuery(IPPort(srcIP, srcPort), transactionID, queryTypeNode->byteString(), queryArgsNode->dict());
         else
             qWarning() << "Query has no arguments";
     }
@@ -180,7 +192,7 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
         qDebug() << "Got response";
         QSharedPointer<DictBencodeNode> responseArgsNode = dict->dict().value(RESPONSE_ARGS_KEY).dynamicCast<DictBencodeNode>();
         if (!responseArgsNode.isNull())
-            this->beginProcessResponse(IPPort(srcIP, srcPort), responseArgsNode->dict());
+            this->beginProcessResponse(IPPort(srcIP, srcPort), transactionID, responseArgsNode->dict());
         else
             qWarning() << "Response has no arguments";
     }
@@ -202,23 +214,25 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
 
 //private slot
 void QDHT::beginProcessQuery(const IPPort& src,
+                             quint16 transactionID,
                              const QByteArray &queryType,
                              const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
     foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
     {
-        if (handler->handleQuery(src, queryType, queryArgs))
+        if (handler->handleQuery(src, transactionID, queryType, queryArgs))
             break;
     }
 }
 
 //private slot
 void QDHT::beginProcessResponse(const IPPort& src,
+                                quint16 transactionID,
                                 const QMap<QByteArray,QSharedPointer<BencodeNode> > &responseArgs)
 {
     foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
     {
-        if (handler->handleResponse(src, responseArgs))
+        if (handler->handleResponse(src, transactionID, responseArgs))
             break;
     }
 }

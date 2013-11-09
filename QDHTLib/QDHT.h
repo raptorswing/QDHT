@@ -19,14 +19,13 @@ class QDHTLIBSHARED_EXPORT QDHT : public QObject, public DHTMessageSender
     Q_OBJECT
 public:
     QDHT();
+    virtual ~QDHT();
 
-    virtual void sendPing(const QHostAddress& destHost,
-                          quint16 destPort,
+    virtual void sendPing(const IPPort& dest,
                           quint16 transactionID,
                           const NodeID& myNodeID);
 
-    virtual void sendPong(const QHostAddress& destHost,
-                          quint16 destPort,
+    virtual void sendPong(const IPPort& dest,
                           quint16 transactionID,
                           const NodeID& myNodeID);
 
@@ -42,11 +41,11 @@ private slots:
     void handleIncomingBytes();
     void beginProcessMessage(const QHostAddress& srcIP, quint16 srcPort, const QByteArray& bytes);
 
-    void beginProcessQuery(const IPPort &src,
+    void beginProcessQuery(const IPPort &src, quint16 transactionID,
                            const QByteArray& queryType,
                            const QMap<QByteArray, QSharedPointer<BencodeNode> >& queryArgs);
 
-    void beginProcessResponse(const IPPort &src,
+    void beginProcessResponse(const IPPort &src, quint16 transactionID,
                               const QMap<QByteArray, QSharedPointer<BencodeNode> >& responseArgs);
 
 private:

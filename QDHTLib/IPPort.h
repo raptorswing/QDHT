@@ -11,6 +11,8 @@ public:
     const QHostAddress & host() const;
     quint16 port() const;
 
+    QByteArray toCompactIPPortInfo() const;
+
 private:
     QHostAddress _host;
     quint16 _port;

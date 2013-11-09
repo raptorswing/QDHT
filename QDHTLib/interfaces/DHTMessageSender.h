@@ -4,6 +4,7 @@
 #include <QHostAddress>
 
 #include "NodeID.h"
+#include "IPPort.h"
 
 class DHTMessageSender
 {
@@ -11,13 +12,11 @@ public:
     DHTMessageSender();
     virtual ~DHTMessageSender();
 
-    virtual void sendPing(const QHostAddress& destHost,
-                  quint16 destPort,
+    virtual void sendPing(const IPPort& dest,
                   quint16 transactionID,
                   const NodeID& myNodeID) =0;
 
-    virtual void sendPong(const QHostAddress& destHost,
-                  quint16 destPort,
+    virtual void sendPong(const IPPort& dest,
                   quint16 transactionID,
                   const NodeID& myNodeID) =0;
 };

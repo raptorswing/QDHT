@@ -1,45 +1,52 @@
 #include "DefaultMessageHandler.h"
 
-DefaultMessageHandler::DefaultMessageHandler(DHTMessageSender *sender) :
-    DHTMessageHandler(sender)
+DefaultMessageHandler::DefaultMessageHandler(DHTMessageSender *sender, const NodeID &ourID) :
+    DHTMessageHandler(sender, ourID)
 {
 }
 
-//public
-bool DefaultMessageHandler::handleResponse(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
+bool DefaultMessageHandler::_handlePing(const IPPort &src,
+                                        quint16 transactionID,
+                                        const NodeID &senderID)
 {
+    Q_UNUSED(senderID)
 
+    //Respond with appropriate pong
+    this->sender()->sendPong(src, transactionID, this->ourID());
+
+    return true;
+}
+
+bool DefaultMessageHandler::_handleFindNode(const IPPort &src,
+                                            quint16 transactionID,
+                                            const NodeID &senderID,
+                                            const NodeID &targetNode)
+{
     return false;
 }
 
-//protected
-bool DefaultMessageHandler::handlePing(const IPPort &src,
-                                       const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DefaultMessageHandler::_handleGetPeers(const IPPort &src,
+                                            quint16 transactionID,
+                                            const NodeID &senderID,
+                                            const NodeID &infoHash)
 {
-
     return false;
 }
 
-//protected
-bool DefaultMessageHandler::handleFindNode(const IPPort &src,
-                                           const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DefaultMessageHandler::_handleAnnouncePeer(const IPPort &src,
+                                                quint16 transactionID,
+                                                const NodeID &senderID,
+                                                const NodeID &infoHash,
+                                                quint16 port,
+                                                const QByteArray &token)
 {
-
     return false;
 }
 
-//protected
-bool DefaultMessageHandler::handleGetPeers(const IPPort &src,
-                                           const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DefaultMessageHandler::_handleResponse(const IPPort &src,
+                                            quint16 transactionID,
+                                            const NodeID &responderID,
+                                            const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
 {
-
-    return false;
-}
-
-//protected
-bool DefaultMessageHandler::handleAnnouncePeer(const IPPort &src,
-                                               const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
-{
-
     return false;
 }

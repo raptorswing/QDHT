@@ -30,7 +30,20 @@ HEADERS += QDHT.h\
     interfaces\DHTMessageHandler.h \
     interfaces\DHTMessageSender.h \
     DefaultMessageHandler.h \
-    IPPort.h
+    IPPort.h \
+    ttmath/ttmathuint_x86_64.h \
+    ttmath/ttmathuint_x86.h \
+    ttmath/ttmathuint_noasm.h \
+    ttmath/ttmathuint.h \
+    ttmath/ttmathtypes.h \
+    ttmath/ttmaththreads.h \
+    ttmath/ttmathparser.h \
+    ttmath/ttmathobjects.h \
+    ttmath/ttmathint.h \
+    ttmath/ttmathdec.h \
+    ttmath/ttmathbig.h \
+    ttmath/ttmath.h \
+    ttmath/ttmathmisc.h
 
 unix:!symbian {
     maemo5 {
@@ -48,3 +61,6 @@ else:unix: LIBS += -L$$OUT_PWD/../QBencode/ -lQBencode
 
 INCLUDEPATH += $$PWD/../QBencode
 DEPENDPATH += $$PWD/../QBencode
+
+OTHER_FILES += \
+    ttmath/ttmathuint_x86_64_msvc.asm

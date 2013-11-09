@@ -3,6 +3,8 @@
 #include <QCryptographicHash>
 #include <QString>
 #include <QStringBuilder>
+#include <QtDebug>
+#include <QtCore/QtMath>
 
 NodeID::NodeID()
 {
@@ -66,8 +68,31 @@ bool NodeID::operator!=(const NodeID &other) const
     return !(*this == other);
 }
 
+ttmath::UInt<NODEID_WORDS> NodeID::toBigUint() const
+{
+    ttmath::UInt<NODEID_WORDS> toRet(0);
+
+    QByteArray bytes = this->_id;
+
+    const int numBytes = _id.size();
+    const int bytesPerBigWord = sizeof(ttmath::ttmath_uint);
+
+//    qDebug() << numBytes << "bytes" << bytesPerBigWord << "bytes per big word";
+//    qDebug() << "Using" << NODEID_WORDS << "big words";
+
+    ttmath::ttmath_uint * dataPtr = (ttmath::ttmath_uint *) bytes.data();
+
+    for (int i = 0; i < qCeil((qreal)numBytes / (qreal)bytesPerBigWord); i++)
+    {
+        toRet.table[i] = dataPtr[i];
+    }
+
+    return toRet;
+}
+
 //non-member
 uint qHash(const NodeID &node)
 {
-    return qHash(node.bytes());
+    const QByteArray& bytes = node.bytes();
+    return qHash(bytes);
 }
