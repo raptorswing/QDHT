@@ -7,7 +7,7 @@
 #include <QtGlobal>
 #include <QByteArray>
 
-class IntegerBencodeNode : public BencodeNode
+class QBENCODESHARED_EXPORT IntegerBencodeNode : public BencodeNode
 {
 public:
     IntegerBencodeNode(qint64 num);
