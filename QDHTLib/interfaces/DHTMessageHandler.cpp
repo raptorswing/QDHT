@@ -9,19 +9,18 @@ DHTMessageHandler::~DHTMessageHandler()
 {
 }
 
-bool DHTMessageHandler::handleQuery(const QHostAddress &srcIP,
-                                    quint16 srcPort,
+bool DHTMessageHandler::handleQuery(const IPPort &src,
                                     const QByteArray &queryType,
                                     const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
     if (queryType == "ping")
-        return this->handlePing(srcIP, srcPort, queryArgs);
+        return this->handlePing(src, queryArgs);
     else if (queryType == "find_node")
-        return this->handleFindNode(srcIP, srcPort, queryArgs);
+        return this->handleFindNode(src, queryArgs);
     else if (queryType == "get_peers")
-        return this->handleGetPeers(srcIP, srcPort, queryArgs);
+        return this->handleGetPeers(src, queryArgs);
     else if (queryType == "announce_peer")
-        return this->handleAnnouncePeer(srcIP, srcPort, queryArgs);
+        return this->handleAnnouncePeer(src, queryArgs);
     else
     {
         qWarning() << "Unknown query type" << queryType;
@@ -29,46 +28,41 @@ bool DHTMessageHandler::handleQuery(const QHostAddress &srcIP,
     }
 }
 
-bool DHTMessageHandler::handleResponse(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
+bool DHTMessageHandler::handleResponse(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &responseArgs)
 {
-    Q_UNUSED(srcIP)
-    Q_UNUSED(srcPort)
+    Q_UNUSED(src)
     Q_UNUSED(responseArgs)
     return false;
 }
 
 //protected
-bool DHTMessageHandler::handlePing(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DHTMessageHandler::handlePing(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
-    Q_UNUSED(srcIP)
-    Q_UNUSED(srcPort)
+    Q_UNUSED(src)
     Q_UNUSED(queryArgs)
     return false;
 }
 
 //protected
-bool DHTMessageHandler::handleFindNode(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DHTMessageHandler::handleFindNode(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
-    Q_UNUSED(srcIP)
-    Q_UNUSED(srcPort)
+    Q_UNUSED(src)
     Q_UNUSED(queryArgs)
     return false;
 }
 
 //protected
-bool DHTMessageHandler::handleGetPeers(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DHTMessageHandler::handleGetPeers(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
-    Q_UNUSED(srcIP)
-    Q_UNUSED(srcPort)
+    Q_UNUSED(src)
     Q_UNUSED(queryArgs)
     return false;
 }
 
 //protected
-bool DHTMessageHandler::handleAnnouncePeer(const QHostAddress &srcIP, quint16 srcPort, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
+bool DHTMessageHandler::handleAnnouncePeer(const IPPort &src, const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
-    Q_UNUSED(srcIP)
-    Q_UNUSED(srcPort)
+    Q_UNUSED(src)
     Q_UNUSED(queryArgs)
     return false;
 }

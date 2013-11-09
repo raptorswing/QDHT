@@ -42,13 +42,11 @@ private slots:
     void handleIncomingBytes();
     void beginProcessMessage(const QHostAddress& srcIP, quint16 srcPort, const QByteArray& bytes);
 
-    void beginProcessQuery(const QHostAddress& srcIP,
-                           quint16 srcPort,
+    void beginProcessQuery(const IPPort &src,
                            const QByteArray& queryType,
                            const QMap<QByteArray, QSharedPointer<BencodeNode> >& queryArgs);
 
-    void beginProcessResponse(const QHostAddress& srcIP,
-                              quint16 srcPort,
+    void beginProcessResponse(const IPPort &src,
                               const QMap<QByteArray, QSharedPointer<BencodeNode> >& responseArgs);
 
 private:

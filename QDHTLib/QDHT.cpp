@@ -10,6 +10,9 @@
 #include "DictBencodeNode.h"
 #include "BencodeNodeVisitor.h"
 
+#include "DefaultMessageHandler.h"
+#include "IPPort.h"
+
 const QByteArray TRANS_ID_KEY = "t";
 
 const QByteArray MSG_TYPE_KEY = "y";
@@ -35,6 +38,8 @@ QDHT::QDHT()
             SLOT(handleIncomingBytes()));
 
     QTimer::singleShot(1, this, SLOT(test()));
+
+    this->addMessageHandler(QSharedPointer<DefaultMessageHandler>(new DefaultMessageHandler(this)));
 }
 
 void QDHT::sendPing(const QHostAddress &destHost, quint16 destPort, quint16 transactionID, const NodeID &myNodeID)
@@ -166,7 +171,7 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
         QSharedPointer<DictBencodeNode> queryArgsNode = dict->dict().value(QUERY_ARGS_KEY).dynamicCast<DictBencodeNode>();
 
         if (!queryArgsNode.isNull() && !queryTypeNode.isNull())
-            this->beginProcessQuery(srcIP, srcPort, queryTypeNode->byteString(), queryArgsNode->dict());
+            this->beginProcessQuery(IPPort(srcIP, srcPort), queryTypeNode->byteString(), queryArgsNode->dict());
         else
             qWarning() << "Query has no arguments";
     }
@@ -175,7 +180,7 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
         qDebug() << "Got response";
         QSharedPointer<DictBencodeNode> responseArgsNode = dict->dict().value(RESPONSE_ARGS_KEY).dynamicCast<DictBencodeNode>();
         if (!responseArgsNode.isNull())
-            this->beginProcessResponse(srcIP, srcPort, responseArgsNode->dict());
+            this->beginProcessResponse(IPPort(srcIP, srcPort), responseArgsNode->dict());
         else
             qWarning() << "Response has no arguments";
     }
@@ -196,26 +201,24 @@ void QDHT::beginProcessMessage(const QHostAddress &srcIP, quint16 srcPort, const
 }
 
 //private slot
-void QDHT::beginProcessQuery(const QHostAddress &srcIP,
-                             quint16 srcPort,
+void QDHT::beginProcessQuery(const IPPort& src,
                              const QByteArray &queryType,
                              const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs)
 {
     foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
     {
-        if (handler->handleQuery(srcIP, srcPort, queryType, queryArgs))
+        if (handler->handleQuery(src, queryType, queryArgs))
             break;
     }
 }
 
 //private slot
-void QDHT::beginProcessResponse(const QHostAddress &srcIP,
-                                quint16 srcPort,
+void QDHT::beginProcessResponse(const IPPort& src,
                                 const QMap<QByteArray,QSharedPointer<BencodeNode> > &responseArgs)
 {
     foreach(const QSharedPointer<DHTMessageHandler>& handler, _messageHandlers)
     {
-        if (handler->handleResponse(srcIP, srcPort, responseArgs))
+        if (handler->handleResponse(src, responseArgs))
             break;
     }
 }

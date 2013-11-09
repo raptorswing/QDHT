@@ -19,14 +19,18 @@ SOURCES += QDHT.cpp \
     BootstrapTest.cpp \
     NodeID.cpp \
     interfaces\DHTMessageHandler.cpp \
-    interfaces\DHTMessageSender.cpp
+    interfaces\DHTMessageSender.cpp \
+    DefaultMessageHandler.cpp \
+    IPPort.cpp
 
 HEADERS += QDHT.h\
         qdhtlib_global.h \
     BootstrapTest.h \
     NodeID.h \
     interfaces\DHTMessageHandler.h \
-    interfaces\DHTMessageSender.h
+    interfaces\DHTMessageSender.h \
+    DefaultMessageHandler.h \
+    IPPort.h
 
 unix:!symbian {
     maemo5 {

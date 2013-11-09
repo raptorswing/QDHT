@@ -1,19 +1,14 @@
-#ifndef DHTMESSAGEHANDLER_H
-#define DHTMESSAGEHANDLER_H
+#ifndef DEFAULTMESSAGEHANDLER_H
+#define DEFAULTMESSAGEHANDLER_H
 
-#include "DHTMessageSender.h"
-#include "BencodeNode.h"
+#include "interfaces/DHTMessageHandler.h"
 #include "IPPort.h"
 
-class DHTMessageHandler
+class DefaultMessageHandler : public DHTMessageHandler
 {
 public:
-    DHTMessageHandler(DHTMessageSender * sender);
-    virtual ~DHTMessageHandler();
+    DefaultMessageHandler(DHTMessageSender * sender);
 
-    virtual bool handleQuery(const IPPort& src,
-                             const QByteArray& queryType,
-                             const QMap<QByteArray, QSharedPointer<BencodeNode> > &queryArgs);
 
     virtual bool handleResponse(const IPPort& src,
                                 const QMap<QByteArray,QSharedPointer<BencodeNode> > &responseArgs);
@@ -30,11 +25,6 @@ protected:
 
     virtual bool handleAnnouncePeer(const IPPort& src,
                                     const QMap<QByteArray, QSharedPointer<BencodeNode> >& queryArgs);
-
-    DHTMessageSender * sender() const;
-
-private:
-    DHTMessageSender * _sender;
 };
 
-#endif // DHTMESSAGEHANDLER_H
+#endif // DEFAULTMESSAGEHANDLER_H
